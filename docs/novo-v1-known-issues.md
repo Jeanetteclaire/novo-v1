@@ -44,11 +44,11 @@ No Git repository or any other version control set up for the project. Not block
 
 ## Housekeeping
 
-**ISSUE-06: Brief filename inconsistency**
-The docs/ folder has two naming conventions: underscores (Novo_Brief_v1.md through v10) and spaces (Novo Brief v11.md through v13). Not breaking anything, but will cause friction if scripts ever need to reference them. Low priority.
+**ISSUE-06: Brief filename inconsistency** — CLOSED
+Previous brief versions (v1–v12) with mixed naming conventions have been deleted. Only v13 remains. No longer an issue.
 
 **ISSUE-07: Scoping worksheet status unknown**
 docs/Novo_Scoping_Worksheet.md exists. Unclear whether it's still active or was a one-off exercise. Jeanette to confirm — can then be marked active or archived in the asset register.
 
 **ISSUE-08: Interaction diagram shows broader scope than current V1 build**
-The Whimsical diagram ("Novo v1 — How It All Interacts") includes JS Job B (seasonal view swap) and sound, both of which are post-V1. The diagram is still the correct architectural reference, but instances reading it should know the current V1 build is a subset of what it shows. Not a problem — just worth noting so no one builds the seasonal swap thinking it's in scope.
+The diagram ("Novo v1 — How It All Interacts.png", now in docs/) includes JS Job B (seasonal view swap) and sound, both of which are post-V1. The diagram is still the correct architectural reference, but instances reading it should know the current V1 build is a subset of what it shows.
