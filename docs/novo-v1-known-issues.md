@@ -8,16 +8,22 @@
 ## Active issues (blocking or affecting the current build step)
 
 **ISSUE-01: Curtain motion too regular**
-Severity: Active — this IS step 2.
+Severity: Active — this IS Phase 1, step 1.2.
 The curtain animates but uses default wave parameters. The motion reads as a wave function, not as cloth. Needs layered randomness, anchored displacement increasing from the top, and enough variation that it never visibly repeats. See brief §12b.
 Owner: Animation instance.
+
+**ISSUE-09: Runway style consistency across angles (live risk)**
+Severity: Active — this is what Phase 0 exists to solve.
+Runway generates beautiful individual images, but cannot guarantee consistency across multiple renders of the same room. If the room needs to be seen from more than one angle (now or post-V1), each Runway generation may produce a subtly different room — different proportions, different light, different chair. This breaks the feeling of one coherent space. The Blender→Runway pipeline (Phase 0) is the proposed solution: Blender holds the canonical geometry, Runway applies the style. Phase 0.2 specifically tests whether Runway style transfer holds consistency across angles of the same Blender scene.
+Owner: Assets instance.
+Risk level: If Phase 0.2 fails (style transfer doesn't hold), the pipeline doesn't work and alternative approaches are needed. This is the single biggest technical risk in V1.
 
 ---
 
 ## Known but not yet relevant (will matter at a later step)
 
 **ISSUE-02: No grain/shader pass**
-Severity: Deferred — step 3, depends on step 2 completion.
+Severity: Deferred — Phase 1, step 1.3, depends on step 1.2 completion.
 The fourth layer (grain, soft focus, vignette, hatching) does not exist yet. Without it the scene reads as a clean digital image rather than an illustration. See brief §8, §12a.
 Owner: Animation instance.
 

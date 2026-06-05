@@ -62,20 +62,21 @@ Note: The brief describes V1 as four stacked layers — view / room / curtain / 
 
 ---
 
-## Files not yet created (may be needed for V1)
+## Files not yet created (expected for V1)
 
-| What | Notes |
-|------|-------|
-| CSS file (if separated from index.html) | May stay inline. TBD by HTML/CSS instance. |
-| JS file (if separated from index.html) | Curtain animation logic may be extracted. TBD by Animation instance. |
+| What | Step | Notes |
+|------|------|-------|
+| CSS file (if separated from index.html) | Any | May stay inline. TBD by HTML/CSS instance. |
+| JS file (if separated from index.html) | 2 | Curtain animation logic may be extracted. TBD by Animation instance. |
+| Shader/grain code (if separate file) | 3 | The fourth layer. May be inline JS/CSS or a separate file. TBD by Animation instance. |
 
 ---
 
-## Companion artefacts (exist outside this directory)
+## Companion artefacts (exist outside the project directory)
 
-| What | Where | Notes |
-|------|-------|-------|
-| V1 interaction diagram | Whimsical | "Novo v1 — How It All Interacts." Referenced in brief. |
+| What | Filename | Where | Source | Notes |
+|------|----------|-------|--------|-------|
+| V1 interaction diagram | Novo_v1___How_It_All_Interacts_2x.png | Whimsical (exported as PNG) | Jeanette | Shows the full V1 architecture: one HTML page containing three code files (HTML/CSS/JS), two JS jobs (animate curtain / swap view), four stacked layers (view / room / curtain / shader-grade), external view image pool, and optional sound. The reference architecture for every instance working on V1. |
 
 ---
 

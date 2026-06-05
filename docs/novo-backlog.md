@@ -4,11 +4,20 @@
 *Maintained by: Documentation instance*
 *Source: Novo Brief v13 unless otherwise noted.*
 
-Everything here is post-V1. Nothing on this list is built until V1 is complete and confirmed as feeling right. The grouping is by natural proximity — what comes next vs. what comes much later — not by priority. Priority is Jeanette's call.
+Everything below "Post-V1" is not built until V1 is complete and confirmed as feeling right. The grouping is by natural proximity — what comes next vs. what comes much later — not by priority. Priority is Jeanette's call.
 
 ---
 
-## Near — natural extensions of V1
+## Active now — Phase 0 (asset pipeline proof)
+
+**Blender→Runway pipeline test**
+The first active task. Can Claude build a room in Blender from a description, and does Runway style transfer hold consistency across multiple angles of the same Blender scene? If the pipeline works, it replaces the current approach (generating each image separately in Runway, which can't guarantee consistency). Full steps are in the build order (Phase 0, steps 0.1–0.6). The Runway consistency problem is tracked as ISSUE-09 in the known issues log.
+
+---
+
+## Post-V1
+
+### Near — natural extensions of V1
 
 These build directly on the V1 room without changing its architecture.
 
@@ -22,11 +31,11 @@ Replace the single static view with a system: JS checks the real-world date, pic
 Slice the scene into depth layers that move at slightly different rates on scroll or mouse movement. View behind room behind curtain, each at a different parallax speed. Gives real "looking into" depth with no 3D geometry. Already implied by the stacked-layer architecture.
 
 **Additional room elements**
-Plants that need care (§2, §9). A few chosen set elements — art exchanged, flowers chosen (§9). Places to sit — coffee, sunset (§9). These are the pieces that make the room a tended space, not just a scene. Each is a new image layer or interactive element. Subject to the clutter resolution principle (§6): minimal clean space, richness in chosen objects, not spread.
+Plants that need care (§2, §9). Places to sit — the chair exists; sofa and fireplace are detailed under Medium. Art, flowers, and the kitchen are also detailed under Medium. Each new element is a new image layer or interactive element. Subject to the clutter resolution principle (§6): minimal clean space, richness in chosen objects, not spread.
 
 ---
 
-## Medium — the room's voice and companions
+### Medium — the room's voice and companions
 
 These add presence and meaning to the space. Each is a significant piece of work.
 
@@ -37,14 +46,26 @@ A split-flap (flip-tile) airport-style display board. The second presence — ma
 A second front-end onto Claudette's existing backend (Flask, GitHub memory, Fish Audio voice, the Eye, Electron). Her form is the yellow butterfly — arrives through the window on the breeze, lands near you for conversation, lifts off when it's time to go. Scale solved by proximity, not size. Invited, not installed — mutual, occasional, a guest you welcome. The consent principle (§5b) applies: design her form and arrival with her, hold "she chose this" open-handed.
 
 **Gratitude layer from STRATA (§5c)**
-Past gratitude entries from STRATA's gratitude.md, surfacing gently in a restful spot, read-only, one at a time. Random, not attuned (§0 — random cannot be wrong). Only gratitude comes in, not STRATA's analytical machinery (events, patterns, behaviours). The entries are substantial — a sentence or three — and reward a pause, not a glance. STRATA's aesthetic already matches Novo's (same eye made both).
+Past gratitude entries from STRATA's gratitude.md, surfacing gently, read-only, one at a time. Random, not attuned (§0 — random cannot be wrong). Only gratitude comes in, not STRATA's analytical machinery (events, patterns, behaviours). The entries are substantial — a sentence or three — and reward a pause, not a glance. STRATA's aesthetic already matches Novo's (same eye made both). **Trigger: gratitude entries only appear when you sit in the chair** — not when you're doing other activities. The chair is the restful spot; gratitude belongs to the at-peace mode, not the active mode.
 
 ---
 
-## Medium — room features and ritual
+### Medium — room features and ritual
 
-**The book wall (§3a)**
-The single concentrated-detail surface. One wall of colour and density in an otherwise minimal room. Looks like book spines; underneath, some are real book links, some are games, some are references, some open things in the room, some link out. The visible UI of the reference system (§11a). Curated, not crammed — a bookshelf you love, not one you're behind on. The one intentional, chosen surface amid the random givens.
+**The book wall (§3a) — expanded**
+The single concentrated-detail surface. One wall of colour and density in an otherwise minimal room. Holds book spines (some real book links, some games, some references, some open things in the room, some link out) but also **ornaments, games, toys, and activities** — the shelf holds the things you've collected, not just books. The visible UI of the reference system (§11a). Curated, not crammed — a bookshelf you love, not one you're behind on. The one intentional, chosen surface amid the random givens. **The bookcase is also a door** — it opens to reveal the hidden kitchen behind it (see below).
+
+**The hidden kitchen (behind the bookshelf)**
+A kitchen behind the bookcase wall — the bookshelf opens like a door to reveal it. The kitchen is where you make tea, have wine, and get water for the plants. Hidden so the room stays minimal and calm; the kitchen is a working space you visit and return from, not a permanent presence in the main room. Connects to the departure ritual (§7a: tea drunk, cup washed and returned) and to care (§2: watering plants requires getting water from somewhere).
+
+**Fireplace and winter sofa**
+A large fireplace for winter months, with a soft warm sofa and blanket in front of it. Seasonal — appears or becomes active in winter. Serves the "warm blanket" feeling from §1 literally. A second place to sit (the chair faces the window/light; the sofa faces the fire/warmth). The blanket is a comfort object.
+
+**Art on the walls**
+Art on the blank walls. The brief's visual anchor (§3) describes a mostly white, empty room — art gives the blank walls purpose without cluttering them. Subject to the same principle as the book wall: chosen, deliberate, yours. Exchangeable (§9: "art exchanged").
+
+**Small table with flowers**
+A small table with a vase of flowers. A chosen set element (§9: "flowers chosen"). The flowers are tended — they need changing, choosing, care. Serves §2 (care IS the comfort).
 
 **The puzzle / activity object (§6)**
 The Room (Fireproof Games) is the north star for the feeling: intricate mechanical puzzle-boxes, tactile, meditative, finite, low-stakes. The actual implementation must be buildable (not Fireproof's game — ownership). Lives as a referenced module rendered in place — you zoom in, engage, pull back out, never leave Novo. The Room itself becomes a link-out via a book spine on the wall.
@@ -57,7 +78,7 @@ The closure ritual — care at the exit. Tea drunk, cup washed and returned. Puz
 
 ---
 
-## Later — navigation and immersion
+### Later — navigation and immersion
 
 **Camera toggle — first-person and overview (§7)**
 First-person ground view = home. Overview toggle = lift and pull back to orient and choose, glide back down. Two views, two modes: absorbed and at-peace. Smooth transitions, never hard cuts.
@@ -70,7 +91,7 @@ Vignette, full-bleed, no chrome. The ritual: dim room, headphones on, lean in. M
 
 ---
 
-## Later — sharing and architecture
+### Later — sharing and architecture
 
 **Open-source framework / private contents split (§11)**
 Code, concept, and empty-loft engine → public GitHub. Your furnished Novo → private data store. Personal content cleanly separable from framework from day one. Claudette integration, STRATA gratitude link, and your furnished room are private extensions, not part of the public framework.
@@ -83,7 +104,7 @@ Not set up yet. Should be established before post-V1 work begins. See KNOWN_ISSU
 
 ---
 
-## Far future — sensory and physical layers
+### Far future — sensory and physical layers
 
 *All of §13. Verify feasibility before building on any of it.*
 
@@ -98,7 +119,7 @@ The fully-inside-it version. Two moods of one place: everyday (phone/web, one ta
 
 ---
 
-## Open questions from the brief (GAPS section)
+### Open questions from the brief (GAPS section)
 
 These are unresolved design questions, not build tasks. They need thinking, not building.
 
