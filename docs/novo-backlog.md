@@ -8,10 +8,12 @@ Everything below "Post-V1" is not built until V1 is complete and confirmed as fe
 
 ---
 
-## Active now — Phase 0 (asset pipeline proof)
+## Active now — Phase 0b (Blender-anchored asset pipeline)
 
-**Blender→Runway pipeline test**
-The first active task. Can Claude build a room in Blender from a description, and does Runway style transfer hold consistency across multiple angles of the same Blender scene? If the pipeline works, it replaces the current approach (generating each image separately in Runway, which can't guarantee consistency). Full steps are in the build order (Phase 0, steps 0.1–0.6). The Runway consistency problem is tracked as ISSUE-09 in the known issues log.
+**Architecture proof passed (Phase 0a ✓).** The stacked-layers approach works. curtains.js animates a middle layer while other layers sit above and below. Z-ordering code works. Runway-generated pencil-drawn assets composite together. Three layers proven: room behind, curtain animated in the middle, chair in front.
+
+**Current task: Blender-anchored prompts and art pipeline**
+The architecture is proven but the current layers don't share exact perspective (generated separately in Runway). Phase 0b replaces them with layers rendered from the same Blender composition — same perspective, same light, same scale. Steps: (1) write Blender-anchored prompts, (2) test in Runway until layers share one composition, (3) confirm asset set. Full detail in the build order (Phase 0b). The Runway consistency risk is tracked as ISSUE-09.
 
 ---
 

@@ -7,16 +7,26 @@
 
 ## Active issues (blocking or affecting the current build step)
 
-**ISSUE-01: Curtain motion too regular**
-Severity: Active — this IS Phase 1, step 1.2.
-The curtain animates but uses default wave parameters. The motion reads as a wave function, not as cloth. Needs layered randomness, anchored displacement increasing from the top, and enough variation that it never visibly repeats. See brief §12b.
-Owner: Animation instance.
-
-**ISSUE-09: Runway style consistency across angles (live risk)**
-Severity: Active — this is what Phase 0 exists to solve.
-Runway generates beautiful individual images, but cannot guarantee consistency across multiple renders of the same room. If the room needs to be seen from more than one angle (now or post-V1), each Runway generation may produce a subtly different room — different proportions, different light, different chair. This breaks the feeling of one coherent space. The Blender→Runway pipeline (Phase 0) is the proposed solution: Blender holds the canonical geometry, Runway applies the style. Phase 0.2 specifically tests whether Runway style transfer holds consistency across angles of the same Blender scene.
+**ISSUE-09: Layers don't share exact perspective (confirmed — Blender pipeline will solve)**
+Severity: Active — this is what Phase 0b exists to solve.
+The current layers were generated separately in Runway and do not share exact perspective — different proportions, different light angles, different scale. The architecture proof (Phase 0a) confirmed the stacking works, but also confirmed the art needs to come from one anchored composition. The Blender→Runway pipeline (Phase 0b) is the solution: Blender holds the canonical geometry so all layers share one viewpoint, Runway applies the style.
 Owner: Assets instance.
-Risk level: If Phase 0.2 fails (style transfer doesn't hold), the pipeline doesn't work and alternative approaches are needed. This is the single biggest technical risk in V1.
+Risk level: If Runway style transfer doesn't hold consistency across layers from the same Blender scene, the pipeline doesn't work and alternative approaches are needed. This remains the single biggest technical risk in V1.
+
+**ISSUE-10: Curtain may be tiling/repeating across canvas**
+Severity: Observed — not blocking, log for now.
+The curtain looks like it might be tiling or repeating across the canvas rather than hanging as distinct panels matching the window widths. Needs checking once final art is in place — may resolve itself with Blender-anchored curtain layer.
+Owner: Animation instance (when final art arrives).
+
+**ISSUE-11: Perspective mismatch between current layers**
+Severity: Observed — expected to be resolved by Phase 0b.
+The room, curtain, and chair were generated separately in Runway, so they don't share exact perspective. This is precisely what the Blender-anchored pipeline is meant to solve. Not a problem with the architecture (which is proven) — a problem with the current placeholder art.
+Owner: Assets instance.
+
+**ISSUE-01: Curtain motion too regular (waiting for final art)**
+Severity: Deferred — Phase 1, step 1.2. Wait for Blender-anchored assets before tuning.
+The curtain animates but uses default wave parameters. The motion reads as a wave function, not as cloth. Needs layered randomness, anchored displacement increasing from the top, and enough variation that it never visibly repeats. See brief §12b. No point tuning motion on placeholder art — tune once the final curtain layer is in place.
+Owner: Animation instance.
 
 ---
 
@@ -37,8 +47,8 @@ The brief elevates sound to a core immersion mechanism (§10) and calls headphon
 **ISSUE-04: Seasonal view swap not implemented**
 V1 uses one static view (view.png). The brief describes a system where JS checks the real-world date, picks a season, and randomly selects a view from an external pool of seasonal images (§11a). The interaction diagram includes this as "JS Job B." Deferred — V1 has one view only.
 
-**ISSUE-05: No version control**
-No Git repository or any other version control set up for the project. Not blocking V1, but risk increases with every change made to working code. Worth setting up before post-V1 work begins.
+**ISSUE-05: No version control** — CLOSED
+Git repository set up and pushing to GitHub.
 
 ---
 

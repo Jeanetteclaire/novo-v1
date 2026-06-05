@@ -13,15 +13,15 @@
       overflow: hidden;
     }
 
-    /* room.jpg is a static CSS background — no WebGL needed for it */
+    /* Layer 1 (furthest back): empty room — walls, windows, floor */
     body {
-      background-image: url("images/room.png");
+      background-image: url("images/empty-room-window.png");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
     }
 
-    /* full-screen canvas that curtains.js draws into */
+    /* Layer 2 (middle): curtains.js WebGL canvas */
     #canvas {
       position: fixed;
       top: 0;
@@ -31,7 +31,7 @@
       z-index: 1;
     }
 
-    /* the plane source image — hidden from normal layout, used as a texture */
+    /* the plane source image — hidden from layout, used as a texture */
     .curtain-plane {
       position: absolute;
       top: 0;
@@ -43,16 +43,39 @@
     .curtain-plane img {
       display: none;
     }
+
+    /* Layer 3 (foreground): chair, sitting in front of the curtain */
+    #chair-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    #chair-layer img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
   </style>
 </head>
 <body>
 
-  <!-- canvas curtains.js expects -->
+  <!-- Layer 2: canvas curtains.js draws into -->
   <div id="canvas"></div>
 
-  <!-- the curtain layer: a plane whose texture is curtain.png -->
+  <!-- the curtain texture source -->
   <div class="curtain-plane">
     <img src="images/curtain.png" alt="curtain" data-sampler="planeTexture">
+  </div>
+
+  <!-- Layer 3: chair in front of everything -->
+  <div id="chair-layer">
+    <img src="images/chair-removebg-preview.png" alt="">
   </div>
 
   <!-- vertex shader: slow gentle horizontal wave, anchored at the top -->
