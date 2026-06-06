@@ -62,7 +62,7 @@ These are non-negotiable. Every prompt includes some version of this language. T
 
 ---
 
-## Prompt 3 — Curtain Layer (First Attempt)
+## Prompt 3 — Curtain Layer (First Attempt) — SUPERSEDED by Prompt 6
 
 **Reference image:** Favourite room output from Test 1 (illustrated room, not the Blender render)
 
@@ -133,13 +133,80 @@ These are non-negotiable. Every prompt includes some version of this language. T
 
 ---
 
-## Current Layer Stack (Target)
+## Prompt 6 — Curtain Layer (Aligned) — supersedes Prompt 3
+
+**Reference image:** Illustrated empty room (from empty room prompt, Blender-anchored)
+
+**Problem:** Curtain layer from Prompt 3 did not align with the room — curtain tops sat too high, above the window frame line. The curtains need to begin at the top of the window frames but the curtain layer cannot show the window frames themselves.
+
+**The reframe:** "Draw curtains where the windows are, then erase the windows" rather than "draw curtains aligned to an invisible point." Give Runway the full room as reference so it can see the window positions, tell it to use those as anchor points, then delete everything except the curtains.
+
+**Why the reference changed:** Switched from illustrated room-with-chair to the illustrated empty room — clearer window visibility without the chair obstructing the view.
+
+**Prompt:**
+
+> Looking at the window positions in this reference image, generate ONLY sheer white muslin curtains hanging from the very top edge of the window frames. The curtains begin exactly where the top of the windows meet the ceiling — that is their anchor line. Full-length translucent fabric falling straight down to floor level with natural vertical folds and gentle draping. The curtains span the full width of the window wall. Pencil-drawn illustration style with visible pencil lines, crosshatching on the fabric folds, soft watercolour wash in white and pale cream tones. REMOVE everything that is not curtain fabric — no window frames, no mullions, no walls, no floor, no ceiling, no room. Replace all non-curtain areas with a flat uniform pale cream background. The curtains are the only drawn element in the image. The overall image framing and dimensions match the reference exactly — do not crop or reframe.
+
+**Result:** Success. Curtains aligned correctly with window frame tops. Background removal cleaned remaining non-curtain elements. Three-layer stack (empty room → curtains → chair) now composites correctly.
+
+**What worked:**
+- Giving Runway the full room as reference then telling it to use geometry as anchor points and delete everything except the target element
+- "The curtains begin exactly where the top of the windows meet the ceiling — that is their anchor line" — naming the anchor explicitly
+- Using the empty room (no chair obstruction) as reference for clearer window visibility
+
+---
+
+## Prompt 7 — Open Curtains with Window Frame
+
+**Reference image:** Illustrated empty room (Blender-anchored)
+
+**Context:** The aligned curtains from Prompt 6 hang straight down, covering the full window width. This variant has the curtains parted from the centre, gathered at the sides, with the window visible through the gap. Needed for compositing over the room layer so the view through the windows is unobstructed.
+
+**Prompt:**
+
+> Looking at the window positions in this reference image, generate sheer white muslin curtains and the window frames. The curtains are OPEN — pulled apart from the centre to each side, gathered naturally at the left and right edges of the window wall. Each curtain panel drapes to its side with soft gathered folds, leaving the central portion of the windows clear and unobstructed. The window frames and mullions from the reference are visible through the gap between the curtains. The curtains begin exactly where the top of the windows meet the ceiling — that is their anchor line. Full-length fabric falling to floor level, fuller and more gathered at the sides where the fabric bunches. Pencil-drawn illustration style with visible pencil lines, crosshatching on the fabric folds, soft watercolour wash in white and pale cream tones. REMOVE the walls, floor, ceiling, and room — keep ONLY the curtain fabric and the window frames. Replace all non-curtain, non-window areas with a flat uniform pale cream background. The overall image framing and dimensions match the reference exactly — do not crop or reframe.
+
+**Result:** Success. Curtains aligned perfectly with the room, parted to the sides, window frame visible through the gap. However the window frame being part of the curtain layer meant the frame moved with the curtain animation — not the desired effect.
+
+**What worked:**
+- Alignment held — curtains parted correctly relative to window positions
+- Open/gathered draping rendered naturally
+
+**What didn't work:**
+- The window frame was included in the curtain layer, so it animated along with the curtains in curtains.js — frames should be static, not moving
+
+---
+
+## Prompt 8 — Remove Frame from Open Curtains
+
+**Reference image:** Output from Prompt 7 (curtain-open.png)
+
+**Problem:** Prompt 7 produced correctly aligned open curtains, but the window frame was included and animated with the curtain. The frame needs to be removed so only the fabric moves.
+
+**Prompt:**
+
+> This exact image with the window frame removed. Keep the curtains exactly as they are — same position, same folds, same fabric, same style. Delete only the window frame and mullions. Replace the window frame area with the same flat pale cream background. Everything else unchanged. Do not reframe, resize, or alter the curtains in any way.
+
+**Result:** Success. Clean open curtains with no frame, aligned to the room, ready for compositing.
+
+**What worked:**
+- Feeding a near-perfect output back as its own reference and asking for targeted deletion
+- "This exact image minus one thing" — Runway handles this reliably
+- The window frame served as **alignment scaffolding**: it ensured the curtains sat correctly relative to the windows, then was removed once it had done its job
+
+**The two-step scaffolding pattern:** Generate with scaffolding (include structural elements that help alignment), then remove the scaffolding in a second pass. More reliable than trying to generate a perfectly isolated element in one pass.
+
+**Animation note for code instance:** Open/gathered curtains will animate differently under curtains.js displacement than straight-hanging curtains. The bunched fabric at the sides has different visual weight. Tuning flagged as needed once the asset is in the stack.
+
+---
+
+## Current Layer Stack (Confirmed)
 
 1. **Empty room** — walls, windows, floor, ceiling, no furniture (back)
-2. **Curtains** — sheer muslin, transparent background, animated via curtains.js (middle)
+2. **Curtains** — sheer muslin, transparent background, animated via curtains.js (middle) — aligned via Prompt 6
 3. **Chair** — egg chair at correct scale and position, transparent background (front)
 
-This replaces the original two-layer stack (room with chair → curtains on top) which failed because curtains covered the chair.
+This replaces the original two-layer stack (room with chair → curtains on top) which failed because curtains covered the chair. Three-layer composite confirmed working in-browser.
 
 ---
 
@@ -155,6 +222,10 @@ This replaces the original two-layer stack (room with chair → curtains on top)
 
 **Negative instructions work but aren't absolute.** "No curtains" was respected. "No room, no floor" was partially respected. Runway follows negatives better for omitting elements from a scene than for stripping a scene down to a single element.
 
+**"Draw it here then erase the context" works for alignment.** When an element needs to align with room geometry but not show it, give Runway the full room as reference and instruct it to use the geometry as anchor points then delete everything except the target element. Runway handles this better than "draw it aligned to something that isn't visible." Name the anchor explicitly ("the curtains begin exactly where the top of the windows meet the ceiling").
+
+**"This exact image minus one thing" works for targeted removal.** When Runway produces a near-perfect output with one unwanted element, feed the output back as its own reference and ask for a targeted deletion. Runway handles this reliably. This enables a two-step **scaffolding pattern**: generate with structural elements that help alignment (e.g. window frames to position curtains), then remove the scaffolding in a second pass. More reliable than trying to generate a perfectly isolated element in one pass.
+
 ---
 
 ## Future Prompt Considerations
@@ -168,3 +239,11 @@ This replaces the original two-layer stack (room with chair → curtains on top)
 **Background removal as standard step:** Rather than fighting Runway to produce perfectly isolated elements, treat background removal as a standard post-processing step. Generate the element in context (or near-context), then clean it with a removal tool. This is more reliable than trying to get Runway to produce clean isolation in one pass.
 
 **Shader/grain layer:** The brief mentions a painterly shader pass (hatching, grain, vignette) applied over all layers. This is code, not a Runway job — but the Runway-generated assets should leave room for it. Avoid baking too much grain or vignette into the source images, since the shader will add its own. Keep the Runway outputs clean and let the code layer do the atmospheric work.
+
+---
+
+## Changelog
+
+- **6 June 2026 — Open curtains (parted, no frame):** Added Prompts 7 and 8. New curtain variant with curtains pulled open to the sides, view unobstructed. Prompt 7 generated aligned open curtains with window frame as scaffolding. Prompt 8 removed the frame via targeted deletion. Added scaffolding pattern to Key Learnings. Animation note flagged for code instance.
+- **6 June 2026 — Curtain alignment fix:** Added Prompt 6 (curtain layer, aligned). Supersedes Prompt 3. Problem was curtain tops sitting above window frame line. Fix: use illustrated empty room as reference, name the anchor point explicitly, tell Runway to draw curtains at the window positions then erase everything except the curtains. Added alignment learning to Key Learnings. Layer stack status updated from "target" to "confirmed."
+- **5–6 June 2026 — Initial log:** Prompts 1–5, empty room prompt, method, style constants, key learnings, future considerations.

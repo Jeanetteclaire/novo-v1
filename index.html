@@ -100,7 +100,10 @@
       float hangFactor = (1.0 - vertexPosition.y) * 0.5;
 
       // slow, subtle horizontal sway
-      vertexPosition.x += sin(vertexPosition.y * 3.0 + uTime * 0.015) * 0.025 * hangFactor;
+      float wave = sin(vertexPosition.y * 3.0 + uTime * 0.015) * 0.025;
+      wave+=sin(vertexPosition.x * 5.3 + uTime * 0.021) * 0.012;
+      wave+=sin(vertexPosition.x * 1.7 + uTime * 0.009) * 0.018;
+      vertexPosition.x += wave * hangFactor;  
 
       gl_Position = uPMatrix * uMVMatrix * vec4(vertexPosition, 1.0);
 
