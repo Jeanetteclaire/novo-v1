@@ -23,7 +23,7 @@ V1 is complete when all three steps are done: the room works, the curtain motion
 | Curtain layer (middle, animated) | images/curtain.png | In use | Three sheer curtain panels. Animated via curtains.js WebGL plane. |
 | Chair layer (front) | images/chair-removebg-preview.png | In use | Egg chair, background removed. |
 | Room variant | images/room.png | In directory | Status TBC — may be an earlier version. |
-| Main HTML file | index.html | In use | Single file containing HTML structure, CSS layout, GLSL shaders (vertex + fragment), and curtains.js initialisation. |
+| Main HTML file | index.html | In use | Single file: HTML structure, CSS layout, GLSL shaders (vertex + fragment), curtains.js initialisation, four painterly overlay features (vignette, paper grain, colour grade, animated boil). Each feature independently toggleable. |
 | curtains.js v8.1.6 | Loaded from CDN | Working | Drives curtain animation via a WebGL plane with sine-wave vertex displacement shader. Shader anchored at top (simulating fabric on a rail), slow horizontal sway. |
 | Local server | — | Working | Served via `python3 -m http.server 8000`, opened at localhost:8000 in Chrome. |
 
@@ -108,11 +108,21 @@ The pipeline loop is confirmed working: Blender (geometry truth) → Runway (sty
 **What it is:** The curtain motion is currently too regular — default wave parameters. It needs to feel like a real curtain stirred by a soft breeze: anchored at the top, displacement increasing downward, layered randomness so it never looks mechanical. See brief §12b for the precise motion model (anchored travelling sine-wave displacement, not rigid drift).
 **Done when:** Jeanette watches the curtain for thirty seconds and it never repeats in a way she notices. It looks like cloth, not a wave function.
 
-**1.3: Grain layer added — V1 complete**
-**Owner:** Animation instance (shader code) + Jeanette (tuning by eye)
+**1.3: Grain layer added — IN PROGRESS**
+**Owner:** Code Claude (JS) + Jeanette (tuning by eye)
 **Depends on:** Step 1.2 complete (motion settled before adding visual treatment on top).
-**What it is:** A post-processing layer applied over the whole scene — grain, soft focus, vignette, hatching. The top layer in the stack (see interaction diagram). Sits over everything and gives the scene its painterly, illustrated register. See brief §8 (organic on technical) and §12a (painterly shader pass).
-**Done when:** The room reads as illustrated, not photographic. There is a visible texture across the whole scene. It feels like "paper or painting — not real, but important." V1 is complete.
+**What it is:** Post-processing layers applied over the whole scene to give it the painterly, illustrated register. See brief §8 (organic on technical) and §12a (painterly shader pass).
+**Current state:** Four painterly features are implemented in index.html, each independently toggleable by commenting out its CSS/JS block:
+
+| Feature | How it works | Key parameters | z-index |
+|---------|-------------|----------------|---------|
+| Vignette | CSS radial gradient — warm dark edges, transparent centre | rgba(35,25,18) at 0.12–0.35 alpha, shadow reaches from 45% to 100% | 10 |
+| Paper grain (static) | JS-generated noise texture, tiled across viewport | 200×200px tile, opacity 0.04 | 11 |
+| Colour grade | CSS filter on scene wrapper | brightness 1.03, contrast 1.05, saturate 0.85, sepia 0.1 | — (on wrapper) |
+| Animated grain (boil) | Canvas at 1/4 resolution, random noise redrawn on interval | 150ms between frames, opacity 0.03 | 12 |
+
+All four are live and running. Parameters are still subject to tuning — current values are first-pass.
+**Done when:** Jeanette sits with the room and the painterly treatment feels right. The room reads as illustrated, not photographic. It feels like "paper or painting — not real, but important." V1 is complete.
 
 ---
 

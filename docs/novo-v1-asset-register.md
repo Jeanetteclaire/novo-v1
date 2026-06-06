@@ -34,7 +34,7 @@ Layer stack, back to front: room → curtain (animated) → chair → shader/gra
 
 | # | Filename | Location | What it is | Source | Status |
 |---|----------|----------|-----------|--------|--------|
-| 1 | index.html | /novo-v1/ | Single file: HTML structure, CSS layout, GLSL shaders (vertex + fragment), curtains.js v8.1.6 initialisation. | Hand-written | In use |
+| 1 | index.html | /novo-v1/ | Single file: HTML structure, CSS layout, GLSL shaders (vertex + fragment), curtains.js v8.1.6 init, four painterly overlays (vignette, static paper grain, colour grade, animated boil). Each overlay independently toggleable by commenting out its CSS/JS block. | Hand-written | In use |
 | 2 | empty-room-window.png | /novo-v1/images/ | Back layer — empty loft with tall windows, wooden floor. View baked in (not yet separated). Pencil-drawn style. | Runway, anchored to Blender render | In use |
 | 3 | curtain.png | /novo-v1/images/ | Middle layer — three sheer curtain panels on transparent background. Animated by curtains.js via WebGL plane with sine-wave vertex displacement. | Runway + background removal | In use |
 | 4 | chair-removebg-preview.png | /novo-v1/images/ | Front layer — egg chair, background removed. | Runway + remove.bg | In use |

@@ -36,10 +36,9 @@ Owner: Code Claude (JS).
 
 ## Known but not yet relevant (will matter at a later step)
 
-**ISSUE-02: No grain/shader pass**
-Severity: Deferred — Phase 1, step 1.3, depends on step 1.2 completion.
-The fourth layer (grain, soft focus, vignette, hatching) does not exist yet. Without it the scene reads as a clean digital image rather than an illustration. See brief §8, §12a.
-Owner: Animation instance.
+**ISSUE-02: Grain/shader pass — IN PROGRESS (four features implemented, tuning ahead)**
+Four painterly overlay features are now live in index.html: vignette (CSS radial gradient), static paper grain (JS-generated noise tile at 0.04 opacity), colour grade (CSS filter: brightness/contrast/saturate/sepia on the scene wrapper), and animated grain/boil (canvas at 1/4 resolution, redrawn every 150ms at 0.03 opacity). Each is independently toggleable. Parameters are first-pass values — tuning by eye is still ahead. See brief §8, §12a.
+Owner: Code Claude (JS) + Jeanette.
 
 ---
 
