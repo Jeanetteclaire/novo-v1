@@ -7,26 +7,30 @@
 
 ## Active issues (blocking or affecting the current build step)
 
-**ISSUE-09: Layers don't share exact perspective (confirmed — Blender pipeline will solve)**
-Severity: Active — this is what Phase 0b exists to solve.
-The current layers were generated separately in Runway and do not share exact perspective — different proportions, different light angles, different scale. The architecture proof (Phase 0a) confirmed the stacking works, but also confirmed the art needs to come from one anchored composition. The Blender→Runway pipeline (Phase 0b) is the solution: Blender holds the canonical geometry so all layers share one viewpoint, Runway applies the style.
-Owner: Assets instance.
-Risk level: If Runway style transfer doesn't hold consistency across layers from the same Blender scene, the pipeline doesn't work and alternative approaches are needed. This remains the single biggest technical risk in V1.
+**ISSUE-09: Runway drift between generations (risk downgraded — pipeline validated but weakness remains)**
+Severity: Managed risk — no longer the single biggest V1 risk, but still present.
+The Blender→Runway pipeline is validated: Runway holds composition when anchored to a Blender render, and style consistency across separately-generated layers is confirmed. The pipeline WORKS. However, Runway can still shift details between generations even with a Blender anchor — multiple passes may be needed for tight alignment. Layer generation isn't one-shot. This is manageable, not blocking.
+Owner: Jeanette (in Runway, iterating).
 
 **ISSUE-10: Curtain may be tiling/repeating across canvas**
 Severity: Observed — not blocking, log for now.
 The curtain looks like it might be tiling or repeating across the canvas rather than hanging as distinct panels matching the window widths. Needs checking once final art is in place — may resolve itself with Blender-anchored curtain layer.
-Owner: Animation instance (when final art arrives).
+Owner: Code Claude (JS) when final art arrives.
 
-**ISSUE-11: Perspective mismatch between current layers**
-Severity: Observed — expected to be resolved by Phase 0b.
-The room, curtain, and chair were generated separately in Runway, so they don't share exact perspective. This is precisely what the Blender-anchored pipeline is meant to solve. Not a problem with the architecture (which is proven) — a problem with the current placeholder art.
-Owner: Assets instance.
+**ISSUE-11: Layer alignment requires manual CSS positioning**
+Severity: Observed — manageable for V1.
+Layers generated separately don't pixel-align automatically. CSS positioning may need manual adjustment per layer. The Blender anchor constrains perspective and proportions (validated), but fine positioning in-browser is still manual work. Acceptable for V1's single viewpoint; becomes harder if multiple viewpoints are needed post-V1.
+Owner: Code Claude (HTML/CSS).
+
+**ISSUE-12: Image filenames in repo may not match current asset filenames**
+Severity: Active housekeeping.
+The index.html image references may not match the current filenames in the images/ directory. Needs checking and updating when assets are replaced. Noted in the PM status document §7.
+Owner: Integration/QA.
 
 **ISSUE-01: Curtain motion too regular (waiting for final art)**
-Severity: Deferred — Phase 1, step 1.2. Wait for Blender-anchored assets before tuning.
-The curtain animates but uses default wave parameters. The motion reads as a wave function, not as cloth. Needs layered randomness, anchored displacement increasing from the top, and enough variation that it never visibly repeats. See brief §12b. No point tuning motion on placeholder art — tune once the final curtain layer is in place.
-Owner: Animation instance.
+Severity: Deferred — Phase 1, step 1.2. Wait for final assets before tuning.
+The curtain animates but uses default wave parameters via a GLSL vertex displacement shader (sine-wave, anchored at top, slow horizontal sway). The motion reads as a wave function, not as cloth. Needs layered randomness, anchored displacement increasing from the top, and enough variation that it never visibly repeats. See brief §12b. No point tuning motion on placeholder art — tune once the final curtain layer is in place.
+Owner: Code Claude (JS).
 
 ---
 
@@ -44,8 +48,8 @@ Owner: Animation instance.
 **ISSUE-03: Sound deferred despite being "core" in the brief**
 The brief elevates sound to a core immersion mechanism (§10) and calls headphones the highest-leverage sensory channel. Sound is nonetheless out of V1 scope by Jeanette's decision. This is noted here so the weight the brief gives it isn't lost when sound is picked up post-V1.
 
-**ISSUE-04: Seasonal view swap not implemented**
-V1 uses one static view (view.png). The brief describes a system where JS checks the real-world date, picks a season, and randomly selects a view from an external pool of seasonal images (§11a). The interaction diagram includes this as "JS Job B." Deferred — V1 has one view only.
+**ISSUE-04: View layer not yet separated**
+The view through the windows is currently baked into the room layer (empty-room-window.png), not a separate back layer. The brief describes a system where the view is a separate referenced module that swaps by season (§11a). View separation is architecturally cleaner but not required for V1 to prove the feeling. Post-V1 stretch goal.
 
 **ISSUE-05: No version control** — CLOSED
 Git repository set up and pushing to GitHub.

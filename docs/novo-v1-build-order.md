@@ -15,19 +15,41 @@ V1 is complete when all three steps are done: the room works, the curtain motion
 
 ## What already exists
 
+### In-browser (the working V1)
+
 | What | File | Status | Notes |
 |------|------|--------|-------|
-| Room layer (back) | images/room.png | In use | Runway-generated. Will be replaced by Blender-anchored version. |
-| Curtain layer (middle, animated) | images/curtain.png | In use | Runway + remove.bg. Animated via curtains.js. Will be replaced. |
-| Chair layer (front) | images/chair-removebg-preview.png | In use | Runway + remove.bg. Will be replaced. |
-| Empty room variant | images/empty-room-window.png | In directory | Status TBC. |
-| Main HTML file | index.html | In use | Updated — loads three image layers with z-ordering, runs curtain animation. |
-| curtains.js integration | (in index.html) | Working | Animates the middle curtain layer. |
-| Design brief | docs/Novo Brief v13.md | Current | Living document, maintained by Jeanette. |
-| Runway prompts | docs/Novo_v1_Runway_Prompts.md | In use | Prompts for generating scene images. |
-| Interaction diagram | docs/Novo v1 — How It All Interacts.png | Current | Reference architecture. |
+| Room layer (back) | images/empty-room-window.png | In use | Empty loft — walls, windows, floor, ceiling. No chair, no curtain. View currently baked in. |
+| Curtain layer (middle, animated) | images/curtain.png | In use | Three sheer curtain panels. Animated via curtains.js WebGL plane. |
+| Chair layer (front) | images/chair-removebg-preview.png | In use | Egg chair, background removed. |
+| Room variant | images/room.png | In directory | Status TBC — may be an earlier version. |
+| Main HTML file | index.html | In use | Single file containing HTML structure, CSS layout, GLSL shaders (vertex + fragment), and curtains.js initialisation. |
+| curtains.js v8.1.6 | Loaded from CDN | Working | Drives curtain animation via a WebGL plane with sine-wave vertex displacement shader. Shader anchored at top (simulating fabric on a rail), slow horizontal sway. |
+| Local server | — | Working | Served via `python3 -m http.server 8000`, opened at localhost:8000 in Chrome. |
 
-Three-layer architecture proven: room behind, curtain animated in the middle, chair in front. Current images prove the concept but don't share exact perspective — they were generated separately in Runway. The Blender-anchored pipeline (Phase 0b) will produce replacements that share one composition.
+### Pipeline assets (not in the web directory, but exist)
+
+| What | Status | Notes |
+|------|--------|-------|
+| Blender test room | Exists | Tall windows with grid framing, floor, walls, ceiling. Primary angle: front-on, matching V1 viewpoint. |
+| Egg chair .glb model | Exists | Imported from Meshy.ai (PNG → 3D .glb). Clean Blender import. |
+| Small table | Exists | Present in Blender scene. |
+| Three test renders | Produced | Different perspectives of the Blender room. Used as Runway anchors. |
+| Runway prompt log | Tested | Method, style constants, every prompt with results and learnings. See novo-runway-prompt-log.md. |
+
+### Pipeline validation
+
+| Test | Result |
+|------|--------|
+| Runway generates pencil-drawn style from text prompts | ✓ |
+| Runway holds composition when anchored to Blender render | ✓ |
+| Style consistency across separately-generated layers | ✓ |
+| Meshy produces accurate .glb from Runway PNG | ✓ |
+| .glb imports cleanly into Blender | ✓ |
+| Layers composite correctly in browser | ✓ |
+| curtains.js animates middle layer independently | ✓ |
+
+Style across all current layers is consistent: pencil linework, warm muted palette (cream, pale grey, dusty rose), watercolour wash, visible hatching, paper grain quality.
 
 ---
 
@@ -52,26 +74,24 @@ Three-layer architecture proven: room behind, curtain animated in the middle, ch
 
 ---
 
-### Phase 0b — Blender-anchored asset pipeline (current phase)
+### Phase 0b — Blender-anchored asset pipeline ✓ LARGELY VALIDATED
 
-The architecture works. The next phase is making the art right — getting layers that truly belong together because they're anchored to the same Blender composition. Current images prove the concept but will be replaced.
+The pipeline loop is confirmed working: Blender (geometry truth) → Runway (style truth) → Meshy.ai (PNG → 3D .glb back into Blender). Style consistency across layers generated from the same Blender anchor is confirmed. What remains is composition refinement — tightening the layers until they align well enough for the final V1 scene.
 
-**0b.1: Write Blender-anchored prompts**
-**Owner:** Assets instance (Runway Claude) — brief is ready
-**What it is:** Get the prompts written that will drive the Blender room build and the Runway style transfer. These need to describe the canonical room precisely enough that Blender can build it and Runway can style it consistently.
-**Done when:** Prompts are written and reviewed.
+**Pipeline tools:**
+- **Blender** — canonical geometry. Perspective, object placement, spatial relationships. Composition authority.
+- **Runway** — pencil-drawn illustration style. Takes Blender render as image input (anchor) + text prompts (style). Aesthetic authority. Most prone to drift between generations, but Blender anchoring constrains it.
+- **Meshy.ai** — bridges 2D to 3D. Takes a Runway PNG → produces .glb model → imports into Blender. Tested with the egg chair: accurate geometry, clean import.
+- **Background removal** — objects needing separate layers (chair, curtain) have backgrounds removed after Runway generation.
 
-**0b.2: Test prompts in Runway — iterate until layers share one composition**
-**Owner:** Jeanette (in Runway)
-**Depends on:** 0b.1 complete.
-**What it is:** Generate layers from the Blender-anchored composition. Iterate until the room, curtain, and chair share exact perspective because they come from the same 3D scene. This is where the Runway consistency problem (ISSUE-09) gets solved.
-**Done when:** A set of layers exists where every element belongs to the same room — same perspective, same light, same scale.
+**Known pipeline weaknesses:**
+- **Runway drift** — even with a Blender anchor, Runway can shift details between generations. Multiple passes may be needed. Layer generation isn't one-shot.
+- **Layer alignment** — layers generated separately don't pixel-align automatically. CSS positioning may need manual adjustment per layer. Acceptable for V1's single viewpoint; harder for multiple viewpoints later.
 
-**0b.3: Confirm asset set is consistent and complete**
-**Owner:** Jeanette
-**Depends on:** 0b.2 complete.
-**What it is:** Stack the new layers, confirm they compose cleanly into one coherent room. Current images in images/ will be superseded.
-**Done when:** Jeanette confirms these are the layers to build with. Asset register updated.
+**0b.1: Composition refinement**
+**Owner:** Jeanette + Assets instance
+**What it is:** Assess whether the current three layers align well enough in-browser, or whether a tighter pipeline pass is needed. If tighter alignment is wanted, regenerate layers from the same Blender render angle with closer prompt control.
+**Done when:** Layers compose into one coherent room — same perspective, same light, same scale. Jeanette confirms these are the layers to build with. Asset register updated.
 
 ---
 
@@ -112,7 +132,6 @@ Everything else in the brief. Specifically:
 - Overview / first-person camera toggle (§7)
 - Any navigable 3D
 - Any additional room elements (plants, art, furniture beyond the chair)
-- Version control (noted as not set up; important but not a build step for V1 itself)
 
 ---
 
@@ -133,11 +152,12 @@ When all three are confirmed, V1 is complete. You open it, the space holds you, 
 | Role | V1 work |
 |------|---------|
 | Concept / brief | Jeanette — all design decisions, the "does this feel right" call at each step. |
-| Assets | Blender/Claude MVP — Phase 0 room build and renders. Runway — style transfer passes. |
-| Animation | Curtain motion tuning (1.2). Shader/grain pass code (1.3). |
-| HTML/CSS | Structural changes if needed to support the grain layer. Likely minimal. |
-| JavaScript | Behaviour logic if curtain tuning needs custom JS beyond curtains.js params. |
-| Integration/QA | Phase 0.6 (confirm asset set). Phase 1 layer composition and grain pass testing. |
+| Project Manager | Holds state, coordinates instances, flags blockers. Does not make creative decisions. |
+| Blender Claude | Blender modelling, rendering, .glb import guidance. Does not make style decisions. |
+| Runway Claude | Writes prompts for Runway image generation. Does not operate Runway or make creative decisions. |
+| Code Claude (HTML/CSS) | Structure and layout. Does not do animation logic or behaviour. |
+| Code Claude (JS) | Behaviour, animation, shader parameters. Does not do layout or styling. |
+| Integration/QA | Testing that parts work together. Does not build new parts. |
 | Documentation | This document. Asset register. Known issues. Backlog. Updated as the build progresses. |
-| Technical architecture | Not needed for V1. Becomes relevant post-V1. |
-| Asset management | Tracking what files exist and where. Critical during Phase 0 as new assets are created. See asset register. |
+| Asset management | Tracking what files exist and where. See asset register. |
+| Sounding board | Claudette (separate system). Does not do direct project work. |
