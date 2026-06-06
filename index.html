@@ -13,17 +13,46 @@
       overflow: hidden;
     }
 
-    /* Layer 1 (furthest back): empty room — walls, windows, floor */
-    body {
+
+    /* === FEATURE 3: COLOUR GRADE — adjust these values to tune the warmth === */
+    /* To disable: comment out the filter line inside #scene-wrapper below     */
+    :root {
+      --grade-brightness: 1.03;
+      --grade-contrast: 1.05;
+      --grade-saturate: 0.85;
+      --grade-sepia: 0.1;
+    }
+
+
+    /* =============================================
+       SCENE LAYERS (room, curtain, chair)
+       ============================================= */
+
+    /* The wrapper holds all scene layers. The colour grade filter lives here. */
+    #scene-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+
+      /* Layer 1 (furthest back): empty room — walls, windows, floor */
       background-image: url("images/empty-room-window.png");
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+
+      /* === FEATURE 3: comment out this line to disable the colour grade === */
+      filter:
+        brightness(var(--grade-brightness))
+        contrast(var(--grade-contrast))
+        saturate(var(--grade-saturate))
+        sepia(var(--grade-sepia));
     }
 
     /* Layer 2 (middle): curtains.js WebGL canvas */
     #canvas {
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
@@ -46,7 +75,7 @@
 
     /* Layer 3 (foreground): chair, sitting in front of the curtain */
     #chair-layer {
-      position: fixed;
+      position: absolute;
       top: 0;
       left: 0;
       width: 100%;
@@ -61,22 +90,93 @@
       object-fit: cover;
       object-position: center;
     }
+
+
+    /* =============================================
+       PAINTERLY OVERLAYS (each independently removable)
+       ============================================= */
+
+    /* === FEATURE 1: VIGNETTE — comment out this section to disable ===
+       Warm dark edges, transparent centre.
+       Adjust the rgba alpha values to control strength.
+       The middle percentage (60%) controls how far in the shadow reaches. */
+    #vignette {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      pointer-events: none;
+      background: radial-gradient(
+        ellipse at center,
+        transparent 45%,
+        rgba(35, 25, 18, 0.12) 65%,
+        rgba(35, 25, 18, 0.35) 100%
+      );
+    }
+
+    /* === FEATURE 2: PAPER GRAIN — comment out this section to disable ===
+       Static noise texture tiled across the viewport.
+       Adjust opacity to control visibility — should be felt, not seen.
+       The background-image is set by JavaScript on load. */
+    #paper-grain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 11;
+      pointer-events: none;
+      opacity: 0.04;
+    }
+
+    /* === FEATURE 4: ANIMATED GRAIN (BOIL) — comment out this section to disable ===
+       Slowly shifting noise that makes the scene feel alive.
+       Adjust opacity to control visibility.
+       The canvas renders at low resolution for softness and performance. */
+    #boil {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 12;
+      pointer-events: none;
+      opacity: 0.03;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Layer 2: canvas curtains.js draws into -->
-  <div id="canvas"></div>
+  <!-- Scene wrapper: holds room/curtain/chair. Colour grade filter applied here. -->
+  <div id="scene-wrapper">
 
-  <!-- the curtain texture source -->
-  <div class="curtain-plane">
-    <img src="images/curtain.png" alt="curtain" data-sampler="planeTexture">
+    <!-- Layer 2: canvas curtains.js draws into -->
+    <div id="canvas"></div>
+
+    <!-- the curtain texture source -->
+    <div class="curtain-plane">
+      <img src="images/curtain.png" alt="curtain" data-sampler="planeTexture">
+    </div>
+
+    <!-- Layer 3: chair in front of everything -->
+    <div id="chair-layer">
+      <img src="images/chair-removebg-preview.png" alt="">
+    </div>
+
   </div>
 
-  <!-- Layer 3: chair in front of everything -->
-  <div id="chair-layer">
-    <img src="images/chair-removebg-preview.png" alt="">
-  </div>
+
+  <!-- === FEATURE 1: VIGNETTE === -->
+  <div id="vignette"></div>
+
+  <!-- === FEATURE 2: PAPER GRAIN === -->
+  <div id="paper-grain"></div>
+
+  <!-- === FEATURE 4: ANIMATED GRAIN (BOIL) === -->
+  <canvas id="boil"></canvas>
+
 
   <!-- vertex shader: slow gentle horizontal wave, anchored at the top -->
   <script id="curtain-vs" type="x-shader/x-vertex">
@@ -100,10 +200,7 @@
       float hangFactor = (1.0 - vertexPosition.y) * 0.5;
 
       // slow, subtle horizontal sway
-      float wave = sin(vertexPosition.y * 3.0 + uTime * 0.015) * 0.025;
-      wave+=sin(vertexPosition.x * 5.3 + uTime * 0.021) * 0.012;
-      wave+=sin(vertexPosition.x * 1.7 + uTime * 0.009) * 0.018;
-      vertexPosition.x += wave * hangFactor;  
+      vertexPosition.x += sin(vertexPosition.y * 3.0 + uTime * 0.015) * 0.025 * hangFactor;
 
       gl_Position = uPMatrix * uMVMatrix * vec4(vertexPosition, 1.0);
 
@@ -129,6 +226,11 @@
   <script src="https://cdn.jsdelivr.net/npm/curtainsjs@8.1.6/dist/curtains.umd.min.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+
+      /* =============================================
+         CURTAIN ANIMATION (unchanged)
+         ============================================= */
+
       const { Curtains, Plane } = window;
 
       // alpha: true keeps the canvas transparent so the room shows through
@@ -158,6 +260,77 @@
       plane.onRender(function () {
         plane.uniforms.time.value++;
       });
+
+
+      /* === FEATURE 2: PAPER GRAIN — generate a tileable noise texture === */
+      /* To disable: comment out this block AND the #paper-grain CSS above  */
+
+      function generateGrainTexture() {
+        var size = 200;
+        var grainCanvas = document.createElement("canvas");
+        grainCanvas.width = size;
+        grainCanvas.height = size;
+        var ctx = grainCanvas.getContext("2d");
+        var imageData = ctx.createImageData(size, size);
+        var pixels = imageData.data;
+
+        for (var i = 0; i < pixels.length; i += 4) {
+          var value = Math.random() * 255;
+          pixels[i]     = value;
+          pixels[i + 1] = value;
+          pixels[i + 2] = value;
+          pixels[i + 3] = 255;
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+        return grainCanvas.toDataURL();
+      }
+
+      var grainElement = document.getElementById("paper-grain");
+      if (grainElement) {
+        grainElement.style.backgroundImage = "url(" + generateGrainTexture() + ")";
+        grainElement.style.backgroundRepeat = "repeat";
+      }
+
+
+      /* === FEATURE 4: ANIMATED GRAIN (BOIL) — slowly shifting noise ===     */
+      /* To disable: comment out this block AND the #boil CSS above            */
+      /* The canvas renders at 1/4 resolution for softness and performance.    */
+      /* Update rate controls the breathing speed — higher = slower = calmer.  */
+
+      var boilCanvas = document.getElementById("boil");
+      if (boilCanvas) {
+        var boilCtx = boilCanvas.getContext("2d");
+        var boilUpdateMs = 150;  // milliseconds between frames — increase for calmer
+
+        function resizeBoil() {
+          boilCanvas.width  = Math.ceil(window.innerWidth / 4);
+          boilCanvas.height = Math.ceil(window.innerHeight / 4);
+        }
+
+        function drawBoil() {
+          var w = boilCanvas.width;
+          var h = boilCanvas.height;
+          var imageData = boilCtx.createImageData(w, h);
+          var pixels = imageData.data;
+
+          for (var i = 0; i < pixels.length; i += 4) {
+            var value = Math.random() * 255;
+            pixels[i]     = value;
+            pixels[i + 1] = value;
+            pixels[i + 2] = value;
+            pixels[i + 3] = 255;
+          }
+
+          boilCtx.putImageData(imageData, 0, 0);
+        }
+
+        resizeBoil();
+        drawBoil();
+        window.addEventListener("resize", resizeBoil);
+        setInterval(drawBoil, boilUpdateMs);
+      }
+
     });
   </script>
 
