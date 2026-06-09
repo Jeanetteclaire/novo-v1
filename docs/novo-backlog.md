@@ -1,19 +1,23 @@
 # Novo — Backlog
 
-*Last updated: 5 June 2026*
+*Last updated: 9 June 2026*
 *Maintained by: Documentation instance*
 *Source: Novo Brief v13 unless otherwise noted.*
+*Status: Project paused. This backlog is preserved for if/when Jeanette returns to Novo.*
 
 Everything below "Post-V1" is not built until V1 is complete and confirmed as feeling right. The grouping is by natural proximity — what comes next vs. what comes much later — not by priority. Priority is Jeanette's call.
 
 ---
 
-## Active now — Phase 0b (composition refinement)
+## Project status — PAUSED
 
-**Architecture proof passed (Phase 0a ✓).** Pipeline validated (Phase 0b ✓ largely). The stacked-layers approach works. The Blender→Runway→Meshy pipeline loop is confirmed. Style consistency across layers generated from the same Blender anchor is confirmed.
+V1 evaluated. Architecture works, pipeline validated, code functional. Project paused because Runway's unpredictability makes achieving the desired visual quality too difficult at this stage — even with the Blender anchor. May return with improved skills, better tools, or new approaches.
 
-**Current task: Composition refinement**
-Assess whether the current three layers align well enough in-browser, or whether a tighter pipeline pass is needed. If tighter: regenerate layers from the same Blender render angle with closer prompt control. Once Jeanette confirms the layers compose into one coherent room, Phase 1 begins (motion tuning, then grain/shader).
+**Implemented before pause (no longer in backlog):**
+- Sound / ambient audio — implemented, loops on first click
+- View layer separation — view is now a separate video layer (view.mp4) behind a room with transparent windows
+- Parallax depth — mouse-tracking parallax on all five layers, with per-layer depth values
+- Plant layer — added as a separate element
 
 ---
 
@@ -23,26 +27,8 @@ Assess whether the current three layers align well enough in-browser, or whether
 
 These build directly on the V1 room without changing its architecture.
 
-**Sound / ambient audio (§10)**
-An ambient soundscape for the room. Headphones fully own one sense — the brief calls this the highest-leverage immersion mechanism. The board's mechanical tile-turn sound ("the burr") is part of this layer but depends on the board existing first. Sound is the one sensory layer that travels (works on phone + headphones), so it bridges the portable and immersive versions.
-
-**View layer separation**
-The view through the windows is currently baked into the room layer (empty-room-window.png). Separating it into its own back layer is architecturally cleaner and a prerequisite for the seasonal view system. Not required for V1 but listed as a stretch goal in the PM status document. When separated, generate view images at the same dimensions and position as the window opening in the room layer.
-
 **Seasonal view rotation (§11a)**
 Replace the single static view with a system: JS checks the real-world date, picks the season, randomly selects a view image from an external pool. Already designed in the interaction diagram as "JS Job B." Requires building the view image pool (Runway-generated seasonal scenes) and the selection logic. Random within the season constraint — can't be wrong (§0).
-
-**Parallax depth between layers (§12a)**
-Slice the scene into depth layers that move at slightly different rates on scroll or mouse movement. Far layers shift slightly, near layers shift more — the brain reads it as depth. Real "looking into" depth with no 3D geometry. The V1 layer architecture is designed to support this.
-
-Candidate layer separation for parallax (from PM status document):
-- View outside (moves slowest)
-- Window frame / back wall
-- Curtain (animated + parallax)
-- Chair / furniture (mid-depth)
-- Foreground elements — table edge, plant (moves fastest)
-
-**Pipeline implication:** when generating post-V1 layers, separate elements by their depth in the scene — don't flatten things at different distances. Build parallax-ready even if V1 displays flat.
 
 **Additional room elements**
 Plants that need care (§2, §9). Places to sit — the chair exists; sofa and fireplace are detailed under Medium. Art, flowers, and the kitchen are also detailed under Medium. Each new element is a new image layer or interactive element. Subject to the clutter resolution principle (§6): minimal clean space, richness in chosen objects, not spread.

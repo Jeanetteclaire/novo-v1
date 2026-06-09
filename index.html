@@ -11,11 +11,12 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
+      background: #000;
     }
 
 
     /* === FEATURE 3: COLOUR GRADE — adjust these values to tune the warmth === */
-    /* To disable: comment out the filter line inside #scene-wrapper below     */
+    /* To disable: comment out the four grade lines in the filter below        */
     :root {
       --grade-brightness: 1.03;
       --grade-contrast: 1.05;
@@ -25,29 +26,62 @@
 
 
     /* =============================================
-       SCENE LAYERS (room, curtain, chair)
+       SCENE LAYERS — back to front:
+         0. view (video)
+         1. room (PNG with transparent windows)
+         2. curtains (animated via curtains.js)
+         3. plant (PNG with transparency)
+         4. chair (PNG with transparency)
        ============================================= */
 
-    /* The wrapper holds all scene layers. The colour grade filter lives here. */
     #scene-wrapper {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
+      overflow: hidden;
 
-      /* Layer 1 (furthest back): empty room — walls, windows, floor */
-      background-image: url("images/empty-room-window.png");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-
-      /* === FEATURE 3: comment out this line to disable the colour grade === */
+      /* The filter chain. Each feature is a separate line — comment out
+         individual lines to disable that feature without touching the others. */
       filter:
-        brightness(var(--grade-brightness))
-        contrast(var(--grade-contrast))
+        url(#boil-filter)                        /* FEATURE 4: BOIL — remove this line to disable */
+        brightness(var(--grade-brightness))       /* FEATURE 3: COLOUR GRADE — remove these four  */
+        contrast(var(--grade-contrast))           /*   lines to disable the colour grade           */
         saturate(var(--grade-saturate))
         sepia(var(--grade-sepia));
+
+      will-change: filter;
+    }
+
+    /* Layer 0 (furthest back): view through the windows */
+    #view-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      z-index: 0;
+    }
+
+    /* Layer 1: room with transparent windows — view shows through */
+    #room-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #room-layer img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
     }
 
     /* Layer 2 (middle): curtains.js WebGL canvas */
@@ -57,7 +91,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 1;
+      z-index: 2;
     }
 
     /* the plane source image — hidden from layout, used as a texture */
@@ -73,14 +107,32 @@
       display: none;
     }
 
-    /* Layer 3 (foreground): chair, sitting in front of the curtain */
+    /* Layer 3: plant */
+    #plant-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    #plant-layer img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    /* Layer 4 (foreground): chair */
     #chair-layer {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      z-index: 2;
+      z-index: 4;
       pointer-events: none;
     }
 
@@ -96,10 +148,7 @@
        PAINTERLY OVERLAYS (each independently removable)
        ============================================= */
 
-    /* === FEATURE 1: VIGNETTE — comment out this section to disable ===
-       Warm dark edges, transparent centre.
-       Adjust the rgba alpha values to control strength.
-       The middle percentage (60%) controls how far in the shadow reaches. */
+    /* === FEATURE 1: VIGNETTE — comment out this section to disable === */
     #vignette {
       position: fixed;
       top: 0;
@@ -116,10 +165,7 @@
       );
     }
 
-    /* === FEATURE 2: PAPER GRAIN — comment out this section to disable ===
-       Static noise texture tiled across the viewport.
-       Adjust opacity to control visibility — should be felt, not seen.
-       The background-image is set by JavaScript on load. */
+    /* === FEATURE 2: PAPER GRAIN — comment out this section to disable === */
     #paper-grain {
       position: fixed;
       top: 0;
@@ -130,39 +176,61 @@
       pointer-events: none;
       opacity: 0.04;
     }
-
-    /* === FEATURE 4: ANIMATED GRAIN (BOIL) — comment out this section to disable ===
-       Slowly shifting noise that makes the scene feel alive.
-       Adjust opacity to control visibility.
-       The canvas renders at low resolution for softness and performance. */
-    #boil {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 12;
-      pointer-events: none;
-      opacity: 0.03;
-    }
   </style>
 </head>
 <body>
 
-  <!-- Scene wrapper: holds room/curtain/chair. Colour grade filter applied here. -->
+  <!-- === FEATURE 4: BOIL — SVG displacement filter === -->
+  <svg style="position:absolute; width:0; height:0; pointer-events:none;">
+    <defs>
+      <filter id="boil-filter" x="-5%" y="-5%" width="110%" height="110%"
+              color-interpolation-filters="sRGB">
+        <feTurbulence id="boil-turbulence"
+                      type="turbulence"
+                      baseFrequency="0.02"
+                      numOctaves="2"
+                      seed="1"
+                      result="noise"/>
+        <feDisplacementMap id="boil-displacement"
+                           in="SourceGraphic"
+                           in2="noise"
+                           scale="3"
+                           xChannelSelector="R"
+                           yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
+
+
+  <!-- Scene wrapper: holds all four scene layers. Filter chain applied here. -->
   <div id="scene-wrapper">
+
+    <!-- Layer 0: view through the windows (video) -->
+    <video id="view-layer" autoplay loop muted playsinline>
+      <source src="images/view.mp4" type="video/mp4">
+    </video>
+
+    <!-- Layer 1: room with transparent windows -->
+    <div id="room-layer">
+      <img src="images/room.png" alt="">
+    </div>
 
     <!-- Layer 2: canvas curtains.js draws into -->
     <div id="canvas"></div>
 
     <!-- the curtain texture source -->
     <div class="curtain-plane">
-      <img src="images/curtain.png" alt="curtain" data-sampler="planeTexture">
+      <img src="images/curtains.png" alt="curtain" data-sampler="planeTexture">
     </div>
 
-    <!-- Layer 3: chair in front of everything -->
+    <!-- Layer 3: plant -->
+    <div id="plant-layer">
+      <img src="images/plant.png" alt="">
+    </div>
+
+    <!-- Layer 4: chair in front of everything -->
     <div id="chair-layer">
-      <img src="images/chair-removebg-preview.png" alt="">
+      <img src="images/chair.png" alt="">
     </div>
 
   </div>
@@ -174,8 +242,12 @@
   <!-- === FEATURE 2: PAPER GRAIN === -->
   <div id="paper-grain"></div>
 
-  <!-- === FEATURE 4: ANIMATED GRAIN (BOIL) === -->
-  <canvas id="boil"></canvas>
+  <!-- === FEATURE 5: AMBIENT SOUND — comment out to disable ===
+       Loops continuously. Browsers block unmuted autoplay, so playback
+       starts on first click/tap anywhere on the page. -->
+  <audio id="ambient-sound" loop preload="auto">
+    <source src="audio/ambient.mp3" type="audio/mpeg">
+  </audio>
 
 
   <!-- vertex shader: slow gentle horizontal wave, anchored at the top -->
@@ -196,10 +268,8 @@
     void main() {
       vec3 vertexPosition = aVertexPosition;
 
-      // 0.0 at the top of the plane, 1.0 at the bottom — fabric hangs from a fixed rod
       float hangFactor = (1.0 - vertexPosition.y) * 0.5;
 
-      // slow, subtle horizontal sway
       vertexPosition.x += sin(vertexPosition.y * 3.0 + uTime * 0.015) * 0.025 * hangFactor;
 
       gl_Position = uPMatrix * uMVMatrix * vec4(vertexPosition, 1.0);
@@ -231,17 +301,14 @@
          CURTAIN ANIMATION (unchanged)
          ============================================= */
 
-      const { Curtains, Plane } = window;
-
-      // alpha: true keeps the canvas transparent so the room shows through
-      const curtains = new Curtains({
+      var curtains = new Curtains({
         container: "canvas",
         alpha: true,
       });
 
-      const planeElement = document.querySelector(".curtain-plane");
+      var planeElement = document.querySelector(".curtain-plane");
 
-      const params = {
+      var params = {
         vertexShaderID: "curtain-vs",
         fragmentShaderID: "curtain-fs",
         widthSegments: 20,
@@ -255,7 +322,7 @@
         },
       };
 
-      const plane = new Plane(curtains, planeElement, params);
+      var plane = new Plane(curtains, planeElement, params);
 
       plane.onRender(function () {
         plane.uniforms.time.value++;
@@ -263,7 +330,6 @@
 
 
       /* === FEATURE 2: PAPER GRAIN — generate a tileable noise texture === */
-      /* To disable: comment out this block AND the #paper-grain CSS above  */
 
       function generateGrainTexture() {
         var size = 200;
@@ -293,43 +359,110 @@
       }
 
 
-      /* === FEATURE 4: ANIMATED GRAIN (BOIL) — slowly shifting noise ===     */
-      /* To disable: comment out this block AND the #boil CSS above            */
-      /* The canvas renders at 1/4 resolution for softness and performance.    */
-      /* Update rate controls the breathing speed — higher = slower = calmer.  */
+      /* === FEATURE 4: BOIL — animate the SVG displacement filter ===       */
+      /*                                                                      */
+      /* TUNING — adjust these three values:                                  */
+      /*   boilScale      — pixel displacement (lower = subtler)              */
+      /*   boilIntervalMs — milliseconds between redraws (higher = calmer)    */
+      /*   boilFrequency  — displacement grain (lower = broader warps)        */
 
-      var boilCanvas = document.getElementById("boil");
-      if (boilCanvas) {
-        var boilCtx = boilCanvas.getContext("2d");
-        var boilUpdateMs = 150;  // milliseconds between frames — increase for calmer
+      var boilScale       = 0;
+      var boilIntervalMs  = 0;
+      var boilFrequency   = 0;
 
-        function resizeBoil() {
-          boilCanvas.width  = Math.ceil(window.innerWidth / 4);
-          boilCanvas.height = Math.ceil(window.innerHeight / 4);
-        }
+      var turbulenceEl   = document.getElementById("boil-turbulence");
+      var displacementEl = document.getElementById("boil-displacement");
 
-        function drawBoil() {
-          var w = boilCanvas.width;
-          var h = boilCanvas.height;
-          var imageData = boilCtx.createImageData(w, h);
-          var pixels = imageData.data;
+      if (turbulenceEl && displacementEl) {
+        turbulenceEl.setAttribute("baseFrequency", boilFrequency);
+        displacementEl.setAttribute("scale", boilScale);
 
-          for (var i = 0; i < pixels.length; i += 4) {
-            var value = Math.random() * 255;
-            pixels[i]     = value;
-            pixels[i + 1] = value;
-            pixels[i + 2] = value;
-            pixels[i + 3] = 255;
-          }
-
-          boilCtx.putImageData(imageData, 0, 0);
-        }
-
-        resizeBoil();
-        drawBoil();
-        window.addEventListener("resize", resizeBoil);
-        setInterval(drawBoil, boilUpdateMs);
+        var boilSeed = 1;
+        setInterval(function () {
+          boilSeed = boilSeed + 1;
+          if (boilSeed > 1000) boilSeed = 1;
+          turbulenceEl.setAttribute("seed", boilSeed);
+        }, boilIntervalMs);
       }
+
+
+      /* === FEATURE 5: AMBIENT SOUND — start on first interaction ===        */
+      /* Browsers block unmuted audio autoplay. This starts the sound on       */
+      /* the first click or tap anywhere, then removes the listener.           */
+      /* To disable: comment out this block AND the <audio> element above.     */
+      /* To adjust volume: change ambientVolume (0.0 silent — 1.0 full).       */
+
+      var ambientVolume = 0.3;
+      var ambientSound  = document.getElementById("ambient-sound");
+
+      if (ambientSound) {
+        ambientSound.volume = ambientVolume;
+
+        function startAmbient() {
+          ambientSound.play();
+          document.removeEventListener("click", startAmbient);
+          document.removeEventListener("touchstart", startAmbient);
+        }
+
+        document.addEventListener("click", startAmbient);
+        document.addEventListener("touchstart", startAmbient);
+      }
+
+
+      /* === FEATURE 6: PARALLAX — mouse-tracking depth ===                  */
+      /* To disable: comment out this entire block.                           */
+      /* Each layer shifts slightly as the mouse moves. Far layers move       */
+      /* less, near layers move more — the brain reads it as depth.           */
+      /*                                                                      */
+      /* TUNING:                                                              */
+      /*   parallaxMaxShift — max pixels any layer moves (lower = subtler)    */
+      /*   parallaxSmoothing — how fast layers glide to position              */
+      /*                       (lower = slower/dreamier, higher = snappier)   */
+      /*   depth per layer — how much each layer moves relative to others     */
+
+      var parallaxMaxShift  = 10;
+      var parallaxSmoothing = 0.01;
+
+      var parallaxLayers = [
+        { el: document.getElementById("view-layer"),  depth: 0.2 },
+        { el: document.getElementById("room-layer"),  depth: 0.5 },
+        { el: document.getElementById("canvas"),      depth: 0.8 },
+        { el: document.getElementById("plant-layer"), depth: 1.5 },
+        { el: document.getElementById("chair-layer"), depth: 1.2 },
+      ];
+
+      var mouseX   = 0.5;
+      var mouseY   = 0.5;
+      var smoothX  = 0.5;
+      var smoothY  = 0.5;
+
+      document.addEventListener("mousemove", function (e) {
+        mouseX = e.clientX / window.innerWidth;
+        mouseY = e.clientY / window.innerHeight;
+      });
+
+      function updateParallax() {
+        smoothX += (mouseX - smoothX) * parallaxSmoothing;
+        smoothY += (mouseY - smoothY) * parallaxSmoothing;
+
+        var offsetX = (smoothX - 0.5) * 2;
+        var offsetY = (smoothY - 0.5) * 2;
+
+        for (var i = 0; i < parallaxLayers.length; i++) {
+          var layer = parallaxLayers[i];
+          if (!layer.el) continue;
+
+          var x = -offsetX * layer.depth * parallaxMaxShift;
+          var y = -offsetY * layer.depth * parallaxMaxShift * 0.5;
+
+          layer.el.style.transform =
+            "scale(1.05) translate(" + x.toFixed(2) + "px, " + y.toFixed(2) + "px)";
+        }
+
+        requestAnimationFrame(updateParallax);
+      }
+
+      requestAnimationFrame(updateParallax);
 
     });
   </script>
